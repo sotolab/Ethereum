@@ -1,0 +1,178 @@
+<!Doctype html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <script type="text/javascript" src="./lib/bignumber.min.js"></script>
+    <script type="text/javascript" src="./lib/web3-light.js"></script>
+    <script type="text/javascript">
+
+        console.log('starting...');
+        //connect web3 and check if web3 is connected correctly
+        if (typeof web3 !== 'undefined') {
+            web3 = new Web3(web3.currentProvider);
+        } else {
+            // set the provider you want from Web3.providers
+            web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
+        }
+
+        if (web3.isConnected()) {
+            console.log("connected");
+        } else {
+            console.log("not connected")
+        }
+
+        function getBlockinfo() {
+            var blockNumber = 0;   
+            web3.eth.getBlockNumber(function(error, result) {
+                if (!error) {
+                    console.log("result: " + result);   // Return the current block number
+                    document.getElementById("latestBlock").innerText = result;
+                    document.getElementById("blockinfo").value = result;
+                }
+            });
+        }
+
+        function getTransaction() {
+            var transactioninfo =  document.getElementById('transactioninfo').value;
+            console.log("transactioninfo : " + transactioninfo);
+
+            web3.eth.getTransaction(transactioninfo, function(error, traninfo) {
+                 if (!error) {
+                    document.getElementById("blockHash").innerText = traninfo.blockHash;
+                    document.getElementById('from').innerText = traninfo.from;
+                    document.getElementById('nonce').innerText = traninfo.nonce;
+                    document.getElementById('gas').innerText = traninfo.gas;
+                    document.getElementById('gasPrice').innerText = traninfo.gasPrice;
+                    document.getElementById('hash').innerText = traninfo.hash;
+
+                     console.log(traninfo); 
+                     console.log("blockHash : " + traninfo.blockHash);
+                     console.log("blockNumber : " + traninfo.blockNumber);
+                     console.log("from : " + traninfo.from);
+                     console.log("gas : " + traninfo.gas);
+                     console.log("gasPrice : " + traninfo.gasPrice);
+                     console.log("hash : " + traninfo.hash);
+
+                     console.log("input : " + traninfo.input);
+                     console.log("nonce : " + traninfo.nonce);
+                     console.log("r : " + traninfo.r);
+                     console.log("s : " + traninfo.s);
+                     console.log("v : " + traninfo.v);
+
+                     console.log("to : " + traninfo.to);
+                     console.log("transactionIndex : " + traninfo.transactionIndex);
+                     console.log("value : " + traninfo.value);
+                 }
+                 else {
+                    //res = error; 
+                    console.log(error); 
+                 }
+                 
+            });
+        }
+
+
+        function getBlock() {
+            var blockNum =  document.getElementById('blockinfo').value;
+            console.log("blockNumber : " + blockNum);
+
+            web3.eth.getBlock(blockNum, function(error, blockNumber) {
+                if (!error) {
+                    console.log("data: " +blockNumber);   // Return the current block number
+                    document.getElementById("blockinfo").value = blockNum;
+                    document.getElementById('currentBlock').innerText = blockNum;
+                    document.getElementById('latestBlockHash').innerText = blockNumber.hash;
+                    document.getElementById('latestBlockTimestamp').innerText = Date(blockNumber.timestamp);
+                    document.getElementById('transactions').innerText = blockNumber.transactions;
+                    document.getElementById('transactioninfo').value = blockNumber.transactions;
+
+                    console.log("difficulty : " + blockNumber.difficulty);
+                    console.log("extraData : " + blockNumber.extraData);
+                    console.log("gasLimit : " + blockNumber.gasLimit);
+                    console.log("gasUsed : " + blockNumber.gasUsed);
+                    console.log("hash : " + blockNumber.hash);
+                    console.log("logsBloom : " + blockNumber.logsBloom);
+                    console.log("miner : " + blockNumber.miner);
+                    console.log("mixHash : " + blockNumber.mixHash);
+
+                    console.log("nonce : " + blockNumber.nonce);
+                    console.log("number : " + blockNumber.number);
+                    console.log("parentHash : " + blockNumber.parentHash);
+                    console.log("receiptsRoot : " + blockNumber.receiptsRoot);
+
+                    console.log("sha3Uncles : " + blockNumber.sha3Uncles);
+                    console.log("size : " + blockNumber.size);
+                    console.log("stateRoot : " + blockNumber.stateRoot);
+                    console.log("timestamp : " + blockNumber.timestamp);
+
+                    console.log("totalDifficulty : " + blockNumber.totalDifficulty);
+                    console.log("transactions : " + blockNumber.transactions);
+                    console.log("transactionsRoot : " + blockNumber.transactionsRoot);
+                    console.log("uncles : " + blockNumber.uncles);
+
+                }
+            });
+
+        }
+
+    </script>
+
+
+</head>
+
+<body onload="getBlockinfo()">
+    <div class="container">
+        <h2>Blockchain Monitor</h2>
+        <div class="panel panel-default">
+            <div class="panel-heading">Ethereum Network</div>
+            <input type="text" size="15" id="blockinfo" value="1" placeholder="input block number" />
+            <button type="button" onClick="getBlock();">Get Block Info</button>
+            <p></p>
+            <div class="panel-body">
+                <h5>Coinbase Address:
+                    <strong id="coinbase"></strong>
+                </h5>
+                <h5>Latest Block Number:
+                    <strong id="latestBlock"></strong>
+                </h5>
+                <h5>Current Block Number:
+                    <strong id="currentBlock"></strong>
+                </h5>
+                <h5>Latest Block Timestamp:
+                    <strong id="latestBlockTimestamp"></strong>
+                </h5>
+                <h5>Latest Block Hash:
+                    <strong id="latestBlockHash"></strong>
+                </h5>
+                <h5>transactions:
+                    <strong id="transactions"></strong>
+                </h5>
+            </div>
+            <input type="text" size="75" id="transactioninfo" value="1" placeholder="input transaction" />
+            <button type="button" onClick="getTransaction();">Get getTransaction Info</button>
+            <div class="panel-body">
+                <h5>blockHash:
+                    <strong id="blockHash"></strong>
+                </h5>
+                <h5>hash:
+                    <strong id="hash"></strong>
+                </h5>
+                <h5>from:
+                    <strong id="from"></strong>
+                </h5>
+                <h5>nonce:
+                    <strong id="nonce"></strong>
+                </h5>
+                <h5>gas:
+                    <strong id="gas"></strong>
+                </h5>
+                <h5>gasPrice:
+                    <strong id="gasPrice"></strong>
+                </h5>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,296 @@
+<html>
+
+<head>
+  <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/milligram/1.2.3/milligram.min.css">
+  <meta charset="UTF-8">
+  <script type="text/javascript" src="./lib/bignumber.min.js"></script>
+  <script type="text/javascript" src="./lib/web3-light.js"></script>
+  <script type="text/javascript">
+
+    console.log('starting...');
+    //connect web3 and check if web3 is connected correctly
+    if (typeof web3 !== 'undefined') {
+      web3 = new Web3(web3.currentProvider);
+    } else {
+      // set the provider you want from Web3.providers
+      web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
+    }
+
+    if (web3.isConnected()) {
+      console.log("connected");
+    } else {
+      console.log("not connected")
+    }
+
+    function getBlockinfo() {
+      var blockNum = 0;
+      web3.eth.getBlockNumber(function (error, result) {
+        if (!error) {
+          console.log("result: " + result);   // Return the current block number
+          document.getElementById("lastBlockNumber").innerText = result;
+          blockNum = result;
+
+          web3.eth.getBlock(blockNum, function (error, blockNumber) {
+            if (!error) {
+              var date = blockNumber.timestamp;
+              var dateTime = new Date(date * 1000);
+
+              console.log("data: " + blockNumber);   // Return the current block number
+              document.getElementById("lastBlockHash").innerText = blockNumber.hash.substr(0, 12) + '..';
+              document.getElementById("lastBlockTransactions").innerText = blockNumber.transactions.length;
+              document.getElementById("lastBlockCreated").innerText = dateTime.toUTCString();
+              document.getElementById('blockSearchValue').value = blockNum;
+            }
+          });
+
+        }
+      });
+
+
+
+
+    }
+
+    function getTransaction() {
+      var transactioninfo = document.getElementById('transactionSearchValue').value;
+      console.log("transactioninfo : " + transactioninfo);
+
+      web3.eth.getTransaction(transactioninfo, function (error, traninfo) {
+        if (!error) {
+
+          document.getElementById("transactionSearch").style.display = 'block';
+          document.getElementById("blockSearch").style.display = 'none';
+
+          document.getElementById("txHash").innerText = traninfo.blockHash;
+          document.getElementById('txFrom').innerText = traninfo.from;
+          document.getElementById('txTo').innerText = traninfo.to;
+          document.getElementById('txValue').innerText = web3.fromWei(traninfo.value, 'ether');
+          document.getElementById('txGas').innerText = traninfo.gas;
+          document.getElementById('txGasPrice').innerText = traninfo.gasPrice;
+          document.getElementById('txNonce').innerText = traninfo.nonce;
+
+          web3.eth.getTransactionReceipt(transactioninfo, function (error, receipt) {
+            if (!error) {
+              document.getElementById('txGasUsed').innerText = web3.fromWei(receipt.gasUsed, 'ether');
+              document.getElementById('txCost').innerText = web3.fromWei(receipt.cumulativeGasUsed, 'ether');
+              document.getElementById('txCumulativeGasUsed').innerText = receipt.cumulativeGasUsed.toString(10);
+              
+            }
+          });
+
+            console.log(traninfo);
+            console.log("blockHash : " + traninfo.blockHash);
+            console.log("blockNumber : " + traninfo.blockNumber);
+            console.log("from : " + traninfo.from);
+            console.log("gas : " + traninfo.gas);
+            console.log("gasPrice : " + traninfo.gasPrice);
+            console.log("hash : " + traninfo.hash);
+
+            console.log("input : " + traninfo.input);
+            console.log("nonce : " + traninfo.nonce);
+            console.log("r : " + traninfo.r);
+            console.log("s : " + traninfo.s);
+            console.log("v : " + traninfo.v);
+
+            console.log("to : " + traninfo.to);
+            console.log("transactionIndex : " + traninfo.transactionIndex);
+            console.log("value : " + traninfo.value);
+          }
+        else {
+              //res = error; 
+              console.log(error);
+            }
+
+      });
+    }
+
+
+    function getBlock() {
+      var blockNum = document.getElementById('blockSearchValue').value;
+
+      console.log("blockNumber : " + blockNum);
+
+      web3.eth.getBlock(blockNum, function (error, blockNumber) {
+        if (!error) {
+          document.getElementById("transactionSearch").style.display = 'none';
+          document.getElementById("blockSearch").style.display = 'block';
+
+          var date = blockNumber.timestamp;
+          var dateTime = new Date(date * 1000);
+
+          console.log("data: " + blockNumber);   // Return the current block number
+          document.getElementById("searchBlockTimeAgo").innerText = dateTime.toUTCString();
+          //document.getElementById("searchBlockTimeAgo").innerText = blockNumber.hash;
+          document.getElementById("searchBlockTransactions").innerText = blockNumber.transactions.length;
+          document.getElementById("searchBlockTransaction").innerText = blockNumber.transactions;
+          document.getElementById('searchBlockHash').innerText = blockNumber.hash;
+          document.getElementById('searchBlockParentHash').innerText = blockNumber.parentHash;
+
+          document.getElementById('searchBlockMiner').innerText = blockNumber.miner;
+          document.getElementById('searchBlockDifficulty').innerText = blockNumber.difficulty;
+          document.getElementById('searchBlockSize').innerText = blockNumber.size;
+          document.getElementById('searchBlockGasLimit').innerText = blockNumber.gasLimit;
+          document.getElementById('searchBlockGasUsed').innerText = blockNumber.gasUsed;
+          document.getElementById('searchBlockNonce').innerText = blockNumber.nonce;
+          document.getElementById('searchBlockUncles').innerText = blockNumber.uncles;
+
+          document.getElementById('transactionSearchValue').value = blockNumber.transactions;
+
+          // document.getElementById("blockinfo").value = blockNum;
+          // document.getElementById('currentBlock').innerText = blockNum;
+          // 
+          // document.getElementById('latestBlockTimestamp').innerText = Date(blockNumber.timestamp);
+          // document.getElementById('transactions').innerText = blockNumber.transactions;
+          // document.getElementById('transactioninfo').value = blockNumber.transactions;
+
+          // console.log("difficulty : " + blockNumber.difficulty);
+          // console.log("extraData : " + blockNumber.extraData);
+          // console.log("gasLimit : " + blockNumber.gasLimit);
+          // console.log("gasUsed : " + blockNumber.gasUsed);
+          // console.log("hash : " + blockNumber.hash);
+          // console.log("logsBloom : " + blockNumber.logsBloom);
+          // console.log("miner : " + blockNumber.miner);
+          // console.log("mixHash : " + blockNumber.mixHash);
+
+          // console.log("nonce : " + blockNumber.nonce);
+          // console.log("number : " + blockNumber.number);
+          // console.log("parentHash : " + blockNumber.parentHash);
+          // console.log("receiptsRoot : " + blockNumber.receiptsRoot);
+
+          // console.log("sha3Uncles : " + blockNumber.sha3Uncles);
+          // console.log("size : " + blockNumber.size);
+          // console.log("stateRoot : " + blockNumber.stateRoot);
+          // console.log("timestamp : " + blockNumber.timestamp);
+
+          // console.log("totalDifficulty : " + blockNumber.totalDifficulty);
+          // console.log("transactions : " + blockNumber.transactions);
+          // console.log("transactionsRoot : " + blockNumber.transactionsRoot);
+          // console.log("uncles : " + blockNumber.uncles);
+
+        }
+      });
+
+    }
+
+  </script>
+
+</head>
+
+<body class="container" style="padding-top: 3%;" onload="getBlockinfo();">
+  <h2> My Ethereum Information </h2>
+  <h4>Blockchain Explorer</h4>
+
+  <hr />
+
+  <div class="row">
+    <div class="column">
+      <label>Last Block #</label>
+      <p id="lastBlockNumber">Loading...</p>
+    </div>
+    <div class="column">
+      <label>Hash</label>
+      <p id="lastBlockHash">Loading...</p>
+    </div>
+    <div class="column">
+      <label>Transactions</label>
+      <p id="lastBlockTransactions">Loading...</p>
+    </div>
+    <div class="column">
+      <label>Created</label>
+      <p>
+        <span id="lastBlockCreated"></span> seconds ago</p>
+    </div>
+    <div class="column">
+      <label>Network</label>
+      <p id="currentNetwork">Ethereum Private</p>
+    </div>
+  </div>
+
+  <hr />
+
+  <div class="row">
+    <div class="column">
+      <label>Block # or Hash</label>
+      <input type="text" id="blockSearchValue" placeholder="1" />
+    </div>
+    <div class="column">
+      <br />
+      <button id="searchBlock" onClick="getBlock();">Search Block</button>
+      <!-- <button type="button" onClick="getTransaction();">Get Transaction Info</button> -->
+    </div>
+    <div class="column">
+      <label>Transaction Hash</label>
+      <input type="text" id="transactionSearchValue" placeholder="0x365b070c8cbac9..." />
+    </div>
+    <div class="column">
+      <br />
+      <button id="searchTransaction" onClick="getTransaction();">Search Transaction</button>
+    </div>
+  </div>
+
+  <br />
+
+  <div id="blockSearch" style="display: none;">
+    <h3>Block Information</h3>
+
+    <div style="padding: 20px; border: 1px solid #F1F1F1;">
+      TimeStamp:
+      <span id="searchBlockTimeAgo">0</span>
+      <br /> Transactions:
+      <span id="searchBlockTransactions">0</span> transactions in this block
+      <br /> Hash:
+      <span id="searchBlockHash">0x</span>
+      <br /> Parent Hash:
+      <span id="searchBlockParentHash">0x</span>
+      <br /> Mined By:
+      <span id="searchBlockMiner">0x</span>
+      <br /> Transaction:
+      <span id="searchBlockTransaction">0x</span>
+      <br /> Difficulty:
+      <span id="searchBlockDifficulty">0</span>
+      <br /> Size:
+      <span id="searchBlockSize">0</span> bytes
+      <br /> Gas Limit:
+      <span id="searchBlockGasLimit">0</span>
+      <br /> Gas Used:
+      <span id="searchBlockGasUsed">0</span>
+      <br /> Nonce:
+      <span id="searchBlockNonce">0x</span>
+      <br /> Uncles:
+      <span id="searchBlockUncles">0</span>
+      <br />
+    </div>
+  </div>
+
+  <div id="transactionSearch" style="display: none;">
+    <h3>Transaction Information</h3>
+
+    <div style="padding: 20px; border: 1px solid #F1F1F1;">
+      TxHash:
+      <span id="txHash"></span>
+      <br /> From:
+      <span id="txFrom"></span>
+      <br /> To:
+      <span id="txTo"></span>
+      <br /> Value:
+      <span id="txValue"></span> Ether
+      <br /> Gas:
+      <span id="txGas"></span>
+      <br /> Gas Price:
+      <span id="txGasPrice"></span> Ether
+      <br /> Gas Used By Transaction:
+      <span id="txGasUsed"></span>
+      <br /> Actual Tx Cost/Fee:
+      <span id="txCost"></span> Ether
+      <br /> Cumulative Gas Used:
+      <span id="txCumulativeGasUsed"></span>
+      <br /> Nonce:
+      <span id="txNonce"></span>
+      <br />
+    </div>
+  </div>
+
+  <div id="response" style="padding: 20px; border: 1px solid #F1F1F1;"></div>
+</body>
+
+</html>

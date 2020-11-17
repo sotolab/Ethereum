@@ -1,0 +1,158 @@
+<!Doctype html>
+<html>
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/milligram/1.2.3/milligram.min.css">
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+<script type="text/javascript" src="./lib/bignumber.min.js"></script>
+<script type="text/javascript" src="./lib/web3-light.js"></script>
+<script type="text/javascript">
+   
+   console.log('starting...');
+        //connect web3 and check if web3 is connected correctly
+        if (typeof web3 !== 'undefined') {
+            web3 = new Web3(web3.currentProvider);
+        } else {
+            // set the provider you want from Web3.providers
+            web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
+        }
+
+        if (web3.isConnected()) {
+            console.log("connected");
+        } else {
+            console.log("not connected")
+        }
+
+		web3.eth.defaultAccount = web3.eth.accounts[0];
+		var passwd = 'eth';
+
+		var Coursetro = web3.eth.contract(
+			[
+	{
+		"constant": true,
+		"inputs": [],
+		"name": "getInstructor",
+		"outputs": [
+			{
+				"name": "",
+				"type": "string"
+			},
+			{
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"name": "name",
+				"type": "string"
+			},
+			{
+				"indexed": false,
+				"name": "age",
+				"type": "uint256"
+			}
+		],
+		"name": "Instructor",
+		"type": "event"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "_fName",
+				"type": "string"
+			},
+			{
+				"name": "_age",
+				"type": "uint256"
+			}
+		],
+		"name": "setInstructor",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	}
+]
+
+	).at("0xc847597c89cfe3c837bf2be4c76cd17809f66583");	
+
+	function show(){		
+		document.getElementById("message").innerText = " ";
+    	var idiv = document.createElement('div');
+		document.getElementById("message").appendChild(idiv);
+		var input ="<p>";
+
+		var instructorEvent = Coursetro.Instructor();
+		instructorEvent.watch(function(error, result){
+	        if (!error) {
+				input +="Result: " + result.args.age + "</p>";
+		        idiv.innerHTML = input;	
+    	    } else {
+                console.log(error);
+       	 	}
+    	});
+
+    	$("#button").click(function() {
+        	if (web3.personal.unlockAccount(web3.eth.defaultAccount, passwd)) {
+		   	Coursetro.setInstructor($("#name").val(), $("#age").val());
+		   	console.log("데이터를 입력했습니다.");
+		}       	
+    });
+ }
+</script>
+</head>
+<body>
+	<h3>Event 예제</h1>
+	<h5>데이터를 입력하면 바로 Event가 발생합니다..!!</h5>
+	<div class="container">
+        <h2 id="instructor"></h2>
+        <label for="name" class="col-lg-2 control-label">Your name</label>
+		<input id="name" type="text"><p>
+        <label for="name" class="col-lg-2 control-label">Your Age</label>
+		<input id="age" type="text"><p>
+        <button id="button">Send</button>
+    </div>
+	<div id="message"></div>
+	<script>
+	  show();
+	</script>
+
+<label>Solidity Code</label>
+    
+<pre><code>
+	pragma solidity ^0.4.18;
+
+	contract Coursetro {    
+   		string fName;
+   		uint age;
+   
+   		event Instructor(
+       		string name,
+       		uint age
+    	);
+
+   function setInstructor(string _fName, uint _age) public {
+       fName = _fName;
+       age = _age;
+       Instructor(_fName, _age);        // Add this
+   }
+   
+   function getInstructor() view public returns (string, uint) {
+       return (fName, age);
+   }
+   
+}
+
+</code></pre>
+
+</body>
+</html>

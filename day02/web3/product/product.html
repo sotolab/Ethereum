@@ -1,0 +1,159 @@
+<!Doctype html>
+<html>
+
+<head>
+	<meta charset="UTF-8">
+	<script type="text/javascript" src="./lib/bignumber.min.js"></script>
+	<script type="text/javascript" src="./lib/web3-light.js"></script>
+	<script type="text/javascript">
+
+		console.log('starting...');
+		//connect web3 and check if web3 is connected correctly
+		if (typeof web3 !== 'undefined') {
+			web3 = new Web3(web3.currentProvider);
+		} else {
+			// set the provider you want from Web3.providers
+			web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
+		}
+
+		if (web3.isConnected()) {
+			console.log("connected");
+		} else {
+			console.log("not connected")
+		}
+		var vc = web3.eth.contract(
+
+			[
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "number",
+				"type": "uint8"
+			}
+		],
+		"name": "getProductString",
+		"outputs": [
+			{
+				"name": "",
+				"type": "string"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [],
+		"name": "getNumOfProducts",
+		"outputs": [
+			{
+				"name": "",
+				"type": "uint8"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "pro",
+				"type": "string"
+			}
+		],
+		"name": "addProduct",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [],
+		"name": "killContract",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "constructor"
+	}
+]
+
+		).at("0x8be172c88d6d1367bb766ac24ed08f9054911eb5");
+
+		function showList() {
+			var table = document.getElementById("table1");
+			var length = vc.getNumOfProducts();
+			for (var i = 0; i < length; i++) {
+				var candidate = vc.getProductString(i);
+				var row = table.insertRow();
+				var cell1 = row.insertCell(0);
+				var cell2 = row.insertCell(1);
+				cell1.innerHTML = candidate;
+			}
+		}
+
+
+		function addProduct() {
+			var candidate = document.getElementById("product").value;
+			var account = document.getElementById("account").value;
+			if (web3.personal.unlockAccount(account, document.getElementById('pass').value)) {
+				vc.addProduct(candidate, { from: account, gas: 2000000 }, function (err, result) { if (!err) alert("트랜잭션이 성공적으로 전송되었습니다.|n" + result) });
+			}
+		}
+	</script>
+	<style>
+		table {
+			border-collapse: collapse;
+			border: 4px solid #bbb;
+			width: 50%;
+		}
+
+		tr:nth-child(even) {
+			background-color: #ccc
+		}
+
+		input,
+		select {
+			padding: 6px 10px;
+			margin: 4px 0;
+			display: inline-block;
+			border: 1px solid #ccc;
+			border-radius: 3px;
+			box-sizing: border-box;
+		}
+
+		button:hover {
+			background-color: gold;
+		}
+	</style>
+</head>
+
+<body>
+	<h1>이력 관리 시스템</h1>
+	<div>
+		계정:
+		<input type="text" id="account" value="0x99bb3858277c71d662abca0ec136425acc68548c"> 패스워드:
+		<input type="password" id="pass" value="eth"> </div>
+	<br>
+	<div>
+		<input type="text" id="product" value="제주감귤">
+		<!-- <button onClick="vote()">투표하기</button>  -->
+		<button onClick="addProduct()">제품 등록하기</button>
+	</div>
+	<table id="table1" />
+	<script>
+		showList();
+	</script>
+</body>
+
+</html>

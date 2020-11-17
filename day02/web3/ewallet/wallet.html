@@ -1,0 +1,82 @@
+<!Doctype html>
+<html>
+<head>
+<meta charset="UTF-8">
+<script type="text/javascript" src="./lib/bignumber.min.js"></script>
+<script type="text/javascript" src="./lib/web3-light.js"></script>
+<script type="text/javascript">
+   
+    var Web3 = require('web3');
+    var web3 = new Web3();
+    web3.setProvider(new web3.providers.HttpProvider("http://localhost:8545"));
+	// 잔고를 출력합니다.
+    function refreshBalance() { 
+		// tablePlace를 초기화하고 계좌수 만큼 테이블의 행을 생성합니다.
+		document.getElementById("tablePlace").innerText = " ";
+		var idiv = document.createElement('div');
+		document.getElementById("tablePlace").appendChild(idiv);
+		var list = web3.eth.accounts;
+		var total = 0;
+		var input ="<table>";
+		for(var i = 0; i<list.length; i++){
+			var tempB= parseFloat(web3.fromWei(web3.eth.getBalance(list[i]),"ether"));
+			console.log('Account:('+tempB+')');
+			input +="<tr><td>"+ list[i] + "</td><td>" + tempB +" ETHER</td></tr>";
+			total+=tempB;
+		}
+		input +="<tr><td><strong> TOTAL </strong></td><td><strong><font color='red'>" + total +" ETHER</font></strong></td></tr></table>";
+		idiv.innerHTML = input;	
+		web3.eth.filter('latest').watch(function() { refreshBalance();});
+	}
+	// 사용자의 계좌들을 select로 만듭니다.
+	function makeSelect() { 
+		var list = web3.eth.accounts;
+		var select =  document.getElementById('accounts');
+		for(var i = 0; i<list.length; i++){
+			var opt=document.createElement('option');
+			opt.value = list[i];
+			opt.innerHTML = list[i];
+			select.appendChild(opt);
+		}
+	}
+	function send(){ 
+	var address = document.getElementById('accounts').value;
+	var toAddress = document.getElementById('toaddr').value;
+	var amount = web3.toWei(document.getElementById('amount').value,"ether");
+	//web3.eth.defaultAccount = address;
+	if(web3.personal.unlockAccount(address,document.getElementById('pass').value)){
+		web3.eth.sendTransaction({from: address, to:toAddress, value:amount},function(err,result){
+			if(!err)
+			{
+			    document.getElementById("message").innerText = " ";
+		        var idiv = document.createElement('div');
+		        document.getElementById("message").appendChild(idiv);
+				var input ="<p>"
+				input +="Result: " + result + "</p>";
+		        idiv.innerHTML = input;
+				console.log('Transaction is sent Successful!('+result+')');
+			}
+			else
+				console.log(err);
+		});}
+	}
+</script>
+
+<link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <h1> Welcome to Web ETHER Wallet</h1>
+	<div id="tablePlace"></div>
+	<h4>송신처  <select id="accounts"></select> </h4>
+	<h4>수신처  <input type="text" id="toaddr" size="40" value=""></h4>
+    <h4>금액  <input id="amount" type="number"/> ETHER</h4>
+	<h4>password <input id="pass" type="password"/>	
+	<button onClick="javascript:send()">Send</button></h4>	
+	<div id="message"></div>
+	<script>
+	refreshBalance();
+	makeSelect();
+	</script>
+</body>
+</html>

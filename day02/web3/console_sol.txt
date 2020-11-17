@@ -1,0 +1,112 @@
+------------------------------------------------------------
+pragma solidity ^0.4.18; // (1) 버전 프라그마
+
+// (2) 계약 선언
+contract HelloWorld {
+  // (3) 상태 변수 선언
+  string public greeting;
+  // (4) 생성자
+  constructor(string _greeting) public {
+    greeting = _greeting;
+  }
+  // (5) 메서드 선언
+  function setGreeting(string _greeting) public {
+    greeting = _greeting;
+  }
+  
+  function say() public constant returns (string) {
+    return greeting;
+  }
+} 
+
+
+------------------------------------------------------------
+
+contract=eth.contract(
+[
+	{
+		"constant": true,
+		"inputs": [],
+		"name": "say",
+		"outputs": [
+			{
+				"name": "",
+				"type": "string"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [],
+		"name": "greeting",
+		"outputs": [
+			{
+				"name": "",
+				"type": "string"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "_greeting",
+				"type": "string"
+			}
+		],
+		"name": "setGreeting",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"name": "_greeting",
+				"type": "string"
+			}
+		],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "constructor"
+	}
+]
+).at("0x6535c079e4d8ead5ffa6de0e71942a2815d5ce3c")
+
+
+
+
+
+
+---------------------------------------------------------
+
+> personal.unlockAccount(eth.accounts[0], "eth")
+
+> contract.setGreeting.sendTransaction( "Hello, SotoLAB", {from:eth.accounts[0], gas:1000000})
+
+> miner.start()
+
+> miner.stop()
+
+> contract.say.call()
+
+> eth.getTransaction("0x681001dab2665fb128adff42c83470bc9eae9249e4d963dbc0071a4e22fa8fd7")
+
+> eth.getBlock(1082)
+
+
+> web3.fromWei(eth.getBalance(eth.accounts[1]), "ether") 
+
+
+
+
+
+
+

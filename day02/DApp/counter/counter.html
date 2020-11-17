@@ -1,0 +1,173 @@
+<!Doctype html>
+<html>
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/milligram/1.2.3/milligram.min.css">
+
+<script src="./lib/web3.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+
+<script type="text/javascript">
+  function log(message) {
+    $('#log').append($('<p>').text(message));
+    $('#log').scrollTop($('#log').prop('scrollHeight'));
+  }
+
+  function error(message) {
+    $('#log').append($('<p>').addClass('dark-red').text(message));
+    $('#log').scrollTop($('#log').prop('scrollHeight'));
+  }
+
+  function waitForReceipt(hash, cb) {
+    web3.eth.getTransactionReceipt(hash, function (err, receipt) {
+      if (err) {
+        error(err);
+      }
+
+      if (receipt !== null) {
+        // Transaction went through
+        if (cb) {
+          cb(receipt);
+        }
+      } else {
+        // Try again in 1 second
+        window.setTimeout(function () {
+          waitForReceipt(hash, cb);
+        }, 1000);
+      }
+    });
+  }
+
+  var address = "0x1a36de0585a62ea6db65dbc8ed05a6a9de464e37";
+  var abi = [
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "getCount",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [],
+      "name": "increment",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "name": "_count",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    }
+  ];
+
+  $(function () {
+    var counter;
+
+    $('#getcount').click(function (e) {
+      e.preventDefault();
+
+      log("Calling getCount...");
+
+      counter.getCount.call(function (err, result) {
+        if (err) {
+          return error(err);
+        } else {
+          log("getCount call executed successfully.");
+        }
+
+        // The return value is a BigNumber object
+        $('#count').text(result.toString());
+      });
+    });
+
+    $('#increment').click(function (e) {
+      e.preventDefault();
+
+      web3.eth.defaultAccount = web3.eth.accounts[0];
+      passwd = 'eth';
+
+      if (web3.eth.defaultAccount === undefined) {
+        return error("No accounts found. please unlock it first and reload the page.");
+      }
+
+      log("Calling increment...");
+
+      if (web3.personal.unlockAccount(web3.eth.defaultAccount, passwd)) {
+        counter.increment.sendTransaction(function (err, hash) {
+          if (err) {
+            return error(err);
+          }
+
+          waitForReceipt(hash, function () {
+            log("Transaction succeeded. " +
+              "Call getCount again to see the latest count.");
+          });
+        });
+      }
+
+    });
+
+
+    if (typeof (web3) !== "undefined") {
+      error("Unable to find web3. " +
+        "Please run web3 ");
+    } else {
+      log("Found web3");
+      //web3 = new Web3(web3.currentProvider);
+      web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
+      log("Connected to the private network.");
+      counter = web3.eth.contract(abi).at(address);
+      $('#getcount').click();
+    }
+  });
+
+</script>
+
+</head>
+<body>
+    <h2> Smart Contract Example </h2>
+    <p>Current count: <span id="count">??</span></p>
+    <button id="getcount">Get current count</button>
+    <button id="increment">Increment count</button>
+    <div id="log"></div>
+
+    <label>Solidity Code</label>
+    
+        <pre><code>
+            pragma solidity ^0.4.18;
+            
+            contract Counter {
+                uint256 count;  // persistent contract storage
+            
+                function Counter(uint256 _count) public {
+                    count = _count;
+                }
+            
+                function increment() public {
+                    count += 1;
+                }
+            
+                function getCount() public view returns (uint256) {
+                    return count;
+                }
+            }
+    
+        </code></pre>
+</body>
+</html>

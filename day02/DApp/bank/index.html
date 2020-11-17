@@ -1,0 +1,173 @@
+<!Doctype html>
+<html>
+	<head>
+	<meta charset="UTF-8">
+	<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/milligram/1.2.3/milligram.min.css">
+	<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+	<script type="text/javascript" src="./lib/bignumber.min.js"></script>
+	<script type="text/javascript" src="./lib/web3-light.js"></script>
+	<script type="text/javascript">
+
+		console.log('starting...');
+		//connect web3 and check if web3 is connected correctly
+		if (typeof web3 !== 'undefined') {
+			web3 = new Web3(web3.currentProvider);
+		} else {
+			// set the provider you want from Web3.providers
+			web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
+		}
+
+		if (web3.isConnected()) {
+			console.log("connected");
+		} else {
+			console.log("not connected")
+		}
+
+		web3.eth.defaultAccount = web3.eth.accounts[0];
+		var passwd = 'eth';
+
+		var smartContract = web3.eth.contract(
+			[
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "amount",
+				"type": "uint256"
+			}
+		],
+		"name": "deposit",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [],
+		"name": "getBalance",
+		"outputs": [
+			{
+				"name": "balance",
+				"type": "uint256"
+			}
+		],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	}
+]
+
+		).at("0xee1a8673cdff32e04c659d87c714d15a7a33981a");
+
+		function show() {
+			document.getElementById("message").innerText = " ";
+			var idiv = document.createElement('div');
+			document.getElementById("message").appendChild(idiv);
+			var input = "<p>";
+
+			var getbalance = smartContract.getBalance.call().toString();
+			console.log("getbalance: " + getbalance);
+			input += "Result: " + getbalance + "</p>";
+			idiv.innerHTML = input;
+
+			$("#button").click(function () {
+				console.log("호출했습니다.");
+				if (web3.personal.unlockAccount(web3.eth.defaultAccount, passwd)) {
+
+
+					smartContract.deposit('10', {from: web3.eth.accounts[0]}, function (error, result) {
+						if (error) {
+							input += "Result: " + error + "</p>";
+							idiv.innerHTML = input;
+						} else {
+							var getbalance = smartContract.getBalance.call().toString();
+							console.log("getbalance: " + getbalance);
+							input += "Result: " + getbalance + "</p>";
+							idiv.innerHTML = input;
+
+						}
+
+					});
+
+
+
+
+
+					// var message = 'Hello World!';
+					// var amountInWei = 1000000000000000000; // This is 1 ETH
+					// smartContract.sendEth(web3.fromAscii(message), {from: web3.eth.defaultAccount, value: amountInWei, gas: 3000000}, function(error, result){
+					// 	if (error) {
+					// 		input += "Result: " + error + "</p>";
+					// 		idiv.innerHTML = input;
+					// 	} else {
+
+					// 		var receipt = web3.eth.getTransactionReceipt(result);
+            		// 		// XXX should probably only wait max 2 events before failing XXX 
+            		// 		if (receipt && receipt.transactionHash == txhash) {
+                	// 			//var res = smartContract.getData.call();
+                	// 			console.log('the transactionally incremented data was: ' ); //+ res.toString(10));
+                	// 			//filter.stopWatching();
+            		// 		}
+
+					// 		// web3.eth.accounts.forEach(account => {
+  					// 		// 	balance = web3.eth.getBalance(account);
+  					// 		// 	console.log(balance);
+					// 		// })
+
+					// 		// var receipt = web3.eth.getTransactionReceipt(result, function(error, data) {
+					// 		// 	console.log(data);
+					// 		// 	//log("getCount call executed successfully.");
+					// 		// 	input += "Result: " + data.transactionHash + "</p>";
+					// 		// 	idiv.innerHTML = input;
+
+
+					// 		// });
+								
+					// 	}
+
+					// });
+				}
+			});
+		}
+	</script>
+</head>
+
+<body>
+	<h3> Send DApp 예제</h3>
+		<div class="container">
+			<button id="button"> Send Transaction </button>
+		</div>
+		<div id="message"></div>
+		<script>
+			show();
+		</script>
+
+		<label>Solidity Code</label>
+		<pre><code>
+// This needs to be the first line.
+pragma solidity ^0.4.18;
+
+// give your contract a name
+contract aBank {
+    
+    // this declares a key/value array called balanceAccount.
+    // the key is address and the value is an unsigned integer
+    mapping (address => uint) balanceAccount;    
+    
+    // declare a deposit function that takes an input called amount
+    function deposit(uint amount) public {
+        // add amount to the balance of the sender
+        balanceAccount[msg.sender] += amount;
+    }
+    
+    // a getBalance function that accepts no inputs but returns
+    // the amount in the balanceAccount array
+    function getBalance() returns (uint balance){
+        return balanceAccount[msg.sender];
+    }
+}
+
+</code></pre>
+</body>
+</html>
