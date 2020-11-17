@@ -1,0 +1,38 @@
+SotoLAB
+http://sotolab.kr
+Soto Jang, 2018.05.27
+
+시작 > cmd (관리자로 실행)
+
+$ cd c:\
+$ mkdir workspace\
+$ cd c:\workspace\geth198
+$ mkdir sotolab
+$ geth --datadir sotolab account new
+Passphrase: eth
+Address: {1d636c771cb21588d070603072bdadaf51260f32}
+$ geth --datadir sotolab account new
+Passphrase: eth
+Address: {2d3fd4fea881890b1097076884fd82136582f88c}
+> geth --datadir sotolab account list
+
+## Genesis.json 파일안에다 방금 만든 두 개의 계정을 복사하기 (19라인, 22라인)
+
+$ geth  --datadir  sotolab  init  Genesis.json  
+$ geth  --datadir  sotolab  --networkid 15  console
+> eth.accounts
+> eth.getBalance(eth.accounts[0])
+> web3.fromWei(eth.getBalance(eth.accounts[0]), "ether")
+> personal.newAccount("eth")
+> miner.start()
+
+## DAG 파일 생성하고 100%까지 기다림
+## DAG 100% 끝나고 나면 다시 DAG파일 생성함 100%까지 기다림
+
+> miner.stop()
+
+> exit
+ 
+$ geth --networkid 15 --nodiscover --maxpeers 0 --datadir sotolab --rpc --rpcaddr "0.0.0.0" --rpcport 8545 --rpccorsdomain "*" --rpcapi "admin,db,eth,debug,miner,net,shh,txpool,personal,web3" console 2>> geth.log
+
+https://ethereum.github.io/browser-solidity/
