@@ -33,6 +33,6 @@ $ geth  --datadir  sotolab  --networkid 15  console
 
 > exit
  
-$ geth --networkid 15 --nodiscover --maxpeers 0 --datadir sotolab --rpc --rpcaddr "0.0.0.0" --rpcport 8545 --rpccorsdomain "*" --rpcapi "admin,db,eth,debug,miner,net,shh,txpool,personal,web3" --allow-insecure-unlock console 2>> geth.log
+$ geth --datadir sotolab --networkid 15 --nodiscover --maxpeers 0 --datadir sotolab --rpc --rpcaddr "0.0.0.0" --rpcport 8545 --rpccorsdomain "*" --rpcapi "admin,db,eth,debug,miner,net,shh,txpool,personal,web3" --allow-insecure-unlock console 2>> geth.log
 
 https://ethereum.github.io/browser-solidity/
